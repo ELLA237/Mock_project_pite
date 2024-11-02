@@ -1,0 +1,15 @@
+api_key: "your-api-key"
+default_path: "/path/to/default"
+logging_level: "INFO"
+polling_interval: 10  # in seconds
+max_threads: 5
+db_host: "localhost"
+db_port: 5432
+db_user: "user"
+db_password: "password"
+use_cache: true
+cache_timeout: 300  # in seconds
+retries: 3
+timeout: 30  # in seconds
+service_url: "https://api.example.com"
+enable_debug: false
