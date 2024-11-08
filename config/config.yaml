@@ -1,15 +1,18 @@
-api_key: "your-api-key"
-default_path: "/path/to/default"
+api_key: "8c11fd4d77eba0e0eb812d924fc38291"
+default_path: "/Mock_project_pite/logs"
 logging_level: "INFO"
-polling_interval: 10  # in seconds
+polling_interval: 20  # in seconds
 max_threads: 5
-db_host: "localhost"
-db_port: 5432
-db_user: "user"
-db_password: "password"
+db_host: "localhost" #not used
+db_port: 5432 #not used
+db_user: "user" #not used
+db_password: "password" #not used 
 use_cache: true
-cache_timeout: 300  # in seconds
+cache_timeout: 300 # in seconds
 retries: 3
-timeout: 30  # in seconds
-service_url: "https://api.example.com"
+timeout: 10  # in seconds
+lat: 50.067290
+lon: 19.921470
+base_url: "https://api.openweathermap.org/data/2.5/weather?"
+service_url:   "{base_url}lat={lat}&lon={lon}&appid={api_key}"
 enable_debug: false
