@@ -1,4 +1,4 @@
-api_key: "8c11fd4d77eba0e0eb812d924fc38291"
+api_key: "XXXXXXX"
 default_path: "/Mock_project_pite/logs"
 logging_level: "INFO"
 polling_interval: 60 # in seconds
