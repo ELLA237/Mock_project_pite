@@ -1,61 +1,55 @@
 import yaml
 import logging
-from module2 import DataService
-from module2 import Client
-from module1 import DataFetcher
-import threading,time
+from module2 import DataService, Client
+import threading
+import time
 
-# Load configuration from the YAML file
+
 def load_config():
     with open('../config/config.yaml', 'r') as file:
-        conf = yaml.safe_load(file) 
+        conf = yaml.safe_load(file)
     return conf
 
-#config = load_config()  # Call the function to load the configuration
 
-#setup logging and logging storage
 def setup_logging():
-    logging.basicConfig(level=logging.INFO, 
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        encoding='utf-8',
-                        handlers=[
-                            logging.FileHandler("../logs/app.log",mode ='a', encoding='utf-8'),  # Logs to a file
-                            logging.StreamHandler()  # Logs to the console
-                        ])
-
-setup_logging()  # Calls the function to set up logging
-logging.info("Logging is set up.")
-time.sleep(300)
-
-def client_thread_function(client):
-    while True:
-        client.request_weather_update()
-        time.sleep(300)  # Wait for 5 minutes
-    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        encoding='utf-8',
+        handlers=[
+            logging.FileHandler("../logs/app.log", mode='a', encoding='utf-8'),
+            logging.StreamHandler(),
+        ],
+    )
 
 def main():
+    setup_logging()
+    logging.info("Logging is set up.")
     
     config = load_config()
+    logging.info("Configuration loaded.")
 
-    # Initialize classes
-    fetcher = DataFetcher(config)
-    data = fetcher.fetch_data()
-    if data:
-        logging.info(f"Fetched data: {data}")
-    else:
-        logging.error("Failed to fetch data.")
-
+    # Initialize DataService
     data_service = DataService(config)
     data_service.start_service()
 
+    # Initialize Client
     client = Client(data_service)
-    client_thread = threading.Thread(target = client_thread_function,args = (client,))
-    client_thread.start()
+    client.start(interval=120)  # Start client thread with 5-minute interval
 
     try:
-        client_thread.join()
+        while True:
+            time.sleep(1)  # Keep the main thread alive
+    except KeyboardInterrupt:
+        logging.info("Keyboard interrupt received. Stopping services...")
     finally:
+        # Stop services and threads
+        client.stop()
         data_service.stop_service()
+        logging.info("All services stopped.")
+
+ 
+
 
 if __name__ == "__main__":
     main()

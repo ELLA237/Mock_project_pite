@@ -2,7 +2,7 @@ import logging,requests
 
 
 class DataFetcher:
-    """Class to fetch data from a remote source."""
+    #Class to fetch data from a remote source.
     def __init__(self, config):
         self.api_key = config['api_key']
         self.url = config['service_url'].format(
@@ -10,7 +10,7 @@ class DataFetcher:
         )
         self.polling_interval = config['polling_interval']
         self.timeout = config['timeout'] 
-        logging.info("DataFetcher initialized with URL: %s", self.url)
+        #logging.info("DataFetcher initialized with URL: %s", self.url)
 
     def fetch_data(self):
         try:
@@ -22,8 +22,6 @@ class DataFetcher:
             return data
         except requests.exceptions.Timeout:
             logging.error("Request timed out while fetching data.")
-        except requests.exceptions.TooManyRedirects:
-            logging.error("Too many redirects while fetching data.")
         except requests.exceptions.RequestException as e:
             logging.error("Error fetching data: %s", e)
         return None

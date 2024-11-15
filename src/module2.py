@@ -12,13 +12,13 @@ class DataService:
         self.stop_event = threading.Event()
 
     def start_service(self):
-        """Starts the background thread for continuous data fetching."""
+        #Starts the background thread for continuous data fetching.
         logging.info("Starting data service...")
         self.thread = threading.Thread(target=self._fetch_data_continuously)
         self.thread.start()
-
+    
     def _fetch_data_continuously(self):
-     """Continuously fetches data in the background with error handling."""
+     #Continuously fetches data in the background with error handling.
      retry_count = 0  # To keep track of retries
     
      while not self.stop_event.is_set():
@@ -34,38 +34,53 @@ class DataService:
 
         except Exception as e:
             logging.error(f"Error fetching data: {e}")
-            retry_count += 1
             
-            # Check if retry count exceeded the configured limit
-            if retry_count >= self.fetcher.config['retries']:
-                logging.error("Maximum retries reached. Stopping fetch attempts.")
-                break
-            
-            # Wait for a while before retrying
-            logging.info(f"Retrying in {self.fetcher.config['timeout']} seconds...")
-            time.sleep(self.fetcher.config['timeout'])
-
-
 
     def stop_service(self):
-        """Stops the data fetching thread."""
+        #Stops the data fetching thread.
         logging.info("Stopping data service...")
         self.stop_event.set()
         self.thread.join()
 
     def get_latest_data(self):
-        """Returns the most recent data fetched with thread-safe access."""
+        #Returns the most recent data fetched with thread-safe access.
         with self.data_lock:  # Lock while reading shared data
             return self.latest_data
-        
+
+
 class Client:
     def __init__(self, data_service):
         self.data_service = data_service
+        self.stop_event = threading.Event()
+        self.thread = None
 
     def request_weather_update(self):
-        """Fetches the latest weather data from the service."""
+        #Fetches the latest weather data from the service.
         data = self.data_service.get_latest_data()
         if data:
             logging.info(f"Client received weather data: {data}")
         else:
             logging.info("Client: No data available yet.")
+
+    def start(self, interval):
+        #Starts the client in a separate thread.
+        self.thread = threading.Thread(target=self._run, args=(interval,))
+        self.thread.start()
+        logging.info("Client thread started.")
+
+    def _run(self, interval):
+        #The thread function for periodically requesting weather updates.
+        while not self.stop_event.is_set():
+            try:
+                self.request_weather_update()
+            except Exception as e:
+                logging.error(f"Error in client thread: {e}")
+            self.stop_event.wait(interval)  # Wait for 'interval' seconds or stop signal
+
+    def stop(self):
+        #Stops the client thread.
+        logging.info("Stopping client thread...")
+        self.stop_event.set()
+        if self.thread:
+            self.thread.join()
+        logging.info("Client thread stopped.")
